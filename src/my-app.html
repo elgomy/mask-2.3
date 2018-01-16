@@ -1,0 +1,418 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="my-icons.html">
+
+<link rel="lazy-import" href="my-view1.html">
+<link rel="lazy-import" href="my-view2.html">
+<link rel="lazy-import" href="my-view3.html">
+<link rel="lazy-import" href="my-view404.html">
+
+<!-- NEW IMPORTS -->
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html">
+
+<link rel="import" href="../elements/elements-import.html">
+
+
+<dom-module id="my-app">
+  <template>
+    <style>
+      :host {
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+
+        display: block;
+      }
+
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+      }
+
+      app-header {
+        color: #fff;
+        background-color: var(--app-primary-color);
+      }
+
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
+      .drawer-list {
+        margin: 0 20px;
+      }
+
+      .drawer-list a {
+        display: block;
+        padding: 0 16px;
+        text-decoration: none;
+        color: var(--app-secondary-color);
+        line-height: 40px;
+      }
+
+      .drawer-list a.iron-selected {
+        color: black;
+        font-weight: bold;
+      }
+
+      /* Added styles */
+
+      /* Login styles */
+
+      .account-icon{
+        --iron-icon-width:35px;     
+        --iron-icon-height:35px; 
+      }
+
+      .account-image{
+        background-color:var(--app-primary-color);
+        border-radius: 50%;
+        --iron-image-width:35px;
+        --iron-image-height:35px;
+      }
+
+      .account-drop{
+        width: 22rem;
+        -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2); 
+      }
+
+      .account-drop__content{
+        overflow-x: hidden;    
+        display: grid;
+        grid-template-columns: 5rem 1fr;
+        grid-template-rows: 2fr 1fr;
+        font-size: 1rem;
+        padding: 0;
+        background-color: white; 
+          
+      }
+
+      .account-drop__photo{
+        padding:10px;
+        border-radius: 50%;
+        margin-right: 5px;
+        width: 65px;
+        height: 65px;
+       
+      }
+
+      .account-drop__actions{
+        grid-column: 1/3;
+        background: #eceff1;
+        text-decoration: none;
+        border-top: 1px solid #b0bec5;       
+        border-radius:0px 0px 5px 5px;
+        @apply(--layout-horizontal);         
+        @apply(--layout-around-justified);
+      }
+
+      .account-drop__actions a{
+        text-decoration: none;
+      }
+
+      .account-drop__actions paper-button{
+        color:black;
+      }
+
+      .account-drop__profile{
+        grid-column: 2/3;
+        padding:10px;
+        color:black;
+        @apply(--layout-vertical);         
+        @apply(--layout-around-justified);
+        
+      }
+
+      .login-dialog{
+        width: 30rem;
+        max-width: 320px;
+        border-radius:10px;
+        display: grid;
+        grid-template-rows: 5rem 25rem;
+        
+      }
+
+      .login-dialog__header{
+        margin: 0;
+        padding: 1.5rem;
+        border-radius:10px 10px 0px 0px;
+        background: var(--accent-color);
+        color:white;
+        @apply(--layout-horizontal);         
+        @apply(--layout-around-justified);
+      }
+
+
+  
+    [hidden]{
+      display: none;
+    }
+     
+      
+      /* Media query */
+      @media (max-width: 600px){
+
+        .header-menu{
+          display: none
+        }
+      }
+    </style>
+
+    <app-location
+        route="{{route}}"
+        url-space-regex="^[[rootPath]]">
+    </app-location>
+
+    <app-route
+        route="{{route}}"
+        pattern="[[rootPath]]:page"
+        data="{{routeData}}"
+        tail="{{subroute}}">
+    </app-route>
+
+    <app-drawer-layout fullbleed narrow="{{narrow}}">
+      <!-- Drawer content -->
+      <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
+        <app-toolbar>Menu</app-toolbar>
+        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+          <a name="view1" href="[[rootPath]]view1">View One</a>
+          <a name="view2" href="[[rootPath]]view2">View Two</a>
+          <a name="view3" href="[[rootPath]]view3">View Three</a>
+        </iron-selector>
+      </app-drawer>
+
+      <!-- Main content -->
+      <app-header-layout has-scrolling-region>
+
+        <app-header slot="header" condenses reveals effects="waterfall">
+
+          <app-toolbar>
+            <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+            <div main-title>My App</div>
+
+            <iron-icon on-tap="dialogLogin" icon="my-icons:account-circle" hidden$="{{signed}}" class="account-icon"></iron-icon> 
+            <iron-image loaded="{{loaded}}" hidden$="{{!signed}}" on-tap="dropAccount" src="[[userProfile.photoURL]]" class="account-image"></iron-image>
+          </app-toolbar>
+
+          <!-- Header menu -->
+          <paper-tabs class="header-menu" selected="{{page}}" attr-for-selected="name">
+            <paper-tab name="view1">First tab</paper-tab>
+            <paper-tab name="view2">Tab two</paper-tab>
+            <paper-tab name="view3">Tab three</paper-tab>
+          </paper-tabs>
+
+          <!-- Account Dropdown  -->             
+          <iron-dropdown id="profileDrop" class="account-drop" horizontal-align="right" vertical-align="top" vertical-offset="68" horizontal-offset="5">
+            <div slot="dropdown-content">
+                <div class="account-drop__content">
+                  <img class="account-drop__photo" hidden$="{{!signed}}" src$="[[userProfile.photoURL]]">
+                  <div class="account-drop__profile">
+                    [[userProfile.nombre]] </br>
+                    [[user.email]]
+                  </div>
+                  <div class="account-drop__actions" id="actions">
+                    <a href="view3"><paper-button>Account</paper-button></a>
+                    <paper-button on-tap="logout">Log out</paper-button>
+                  </div>
+                </div>      
+            </div>
+          </iron-dropdown> 
+
+        </app-header>
+
+        <iron-pages
+            selected="[[page]]"
+            attr-for-selected="name"
+            fallback-selection="view404"
+            role="main">
+          <my-view1 name="view1"></my-view1>
+          <my-view2 name="view2"></my-view2>
+          <my-view3 name="view3"></my-view3>
+          <my-view404 name="view404"></my-view404>
+        </iron-pages>
+      </app-header-layout>
+    </app-drawer-layout>
+
+    <!-- Login dialog -->
+    <paper-dialog modal id="dialogAuthentic" class="login-dialog">  
+      <h2 class="login-dialog__header">
+        <span>Welcome</span> 
+        <iron-icon icon="my-icons:close" on-tap="dialogClose"></iron-icon> 
+      </h2>
+      <div class="login-dialog__admin">
+        <login-admin></login-admin>
+      </div> 
+     </paper-dialog>
+
+     <!--toast -->
+    <paper-toast id="positiveToast"></paper-toast>
+    <paper-toast id="negativeToast"></paper-toast>
+
+     <!--Initialize Firebase -->
+    <firebase-app 
+        auth-domain="weeding-app-8af05.firebaseapp.com"
+        database-url="https://weeding-app-8af05.firebaseio.com"
+        api-key="AIzaSyA9FjGrIYQzNLk8qCSYFvrA7u4FfUU_uG8"
+        name="wedding-app"
+        project-id="weeding-app-8af05"
+        storage-bucket="weeding-app-8af05.appspot.com"
+        messaging-sender-id="338583580606"
+        app="{{fbapp}}">
+    </firebase-app>
+
+    <firebase-auth 
+        app-name="wedding-app"
+        id="auth" 
+        user="{{user}}" 
+        signed-in="{{signed}}"
+        status-known="{{statusKnown}}"
+        app="{{fbapp}}">
+    </firebase-auth>
+
+    <firebase-document               
+        app-name="wedding-app"
+        path="/users/{{user.uid}}" 
+        data="{{userProfile}}">
+    </firebase-document>
+
+  </template>
+
+  <script>
+    class MyApp extends Polymer.Element {
+      static get is() { return 'my-app'; }
+
+      static get properties() {
+        return {
+          page: {
+            type: String,
+            reflectToAttribute: true,
+            observer: '_pageChanged',
+          },
+          routeData: Object,
+          subroute: String,
+          // This shouldn't be neccessary, but the Analyzer isn't picking up
+          // Polymer.Element#rootPath
+          rootPath: String,
+
+          // Added properties:
+           /**
+          * Object that brings access to firebase services 
+          * @type {Object}
+          */ 
+          fbapp:Object,
+        };
+      }
+
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page)',
+        ];
+      }
+
+      _routePageChanged(page) {
+        // If no page was found in the route data, page will be an empty string.
+        // Default to 'view1' in that case.
+        this.page = page || 'view1';
+
+        // Close a non-persistent drawer when the page & route are changed.
+        if (!this.$.drawer.persistent) {
+          this.$.drawer.close();
+        }
+      }
+
+      _pageChanged(page) {
+        // Load page import on demand. Show 404 page if fails
+        var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
+        Polymer.importHref(
+            resolvedPageUrl,
+            null,
+            this._showPage404.bind(this),
+            true);
+      }
+
+      _showPage404() {
+        this.page = 'view404';
+      }
+
+      // Added methods
+
+      ready(){
+        super.ready();
+        this.addEventListener('positiveToast', e => this._openPositiveToast(e));
+        this.addEventListener('negativeToast', e => this._openNegativeToast(e));
+        this.addEventListener('closeLogin', e => this.dialogClose(e));
+        this.addEventListener('delete-user', e => this._removeUser(e)); // <delete-account>  
+      }
+
+       _openPositiveToast(e){
+            this.$.positiveToast.open();
+            this.$.positiveToast.text = e.detail
+        }
+
+        _openNegativeToast(e){
+            this.$.negativeToast.open();
+            this.$.negativeToast.text = e.detail
+        }
+
+      dialogLogin(){
+        this.$.dialogAuthentic.toggle()
+      }
+
+      dialogClose(){     
+        this.$.dialogAuthentic.close()
+      }
+
+      dropAccount(){
+       
+        this.$.profileDrop.open()
+      }
+
+      _closeDrope(){
+        this.$.profileDrop.close()
+      }
+
+       logout(){
+        if (!this.user){
+                alert('no estas logueado')
+                    return false;
+                  }
+
+        this.$.auth.signOut().catch(function(error){
+          console.log(error.code, error.message)
+        }).then(function(){
+            this._closeDrope();
+            this.dispatchEvent(new CustomEvent('positiveToast',{bubbles:true, composed:true, detail:'C u soon!'}))
+         // this.fire('positive-toast','Sessão encerrada')
+        }.bind(this))
+      }
+
+
+    }
+
+    window.customElements.define(MyApp.is, MyApp);
+  </script>
+</dom-module>
